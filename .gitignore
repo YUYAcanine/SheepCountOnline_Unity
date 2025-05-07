@@ -1,0 +1,15 @@
+# Unity generated
+Library/
+Temp/
+#Obj/
+#Build/
+Logs/
+MemoryCaptures/
+UserSettings/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# WebGL build output
+#webgl_build
