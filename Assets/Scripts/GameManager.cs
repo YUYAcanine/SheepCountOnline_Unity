@@ -9,10 +9,16 @@ public class GameManager : MonoBehaviourPun
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (PhotonNetwork.LocalPlayer.CustomProperties["role"] as string == "generate sheep")
+            string role = PhotonNetwork.LocalPlayer.CustomProperties["role"] as string;
+
+            if (role == "generate sheep")
+            {
                 TryGenerateSheep();
-            else if (PhotonNetwork.LocalPlayer.CustomProperties["role"] as string == "count sheep")
-                TryRemoveSheep();
+            }
+            else if (role == "count sheep")
+            {
+                TryRequestRemoveSheep();
+            }
         }
     }
 
@@ -22,7 +28,7 @@ public class GameManager : MonoBehaviourPun
         PhotonNetwork.Instantiate(sheepPrefab.name, spawnPos, Quaternion.identity);
     }
 
-    void TryRemoveSheep()
+    void TryRequestRemoveSheep()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -33,21 +39,26 @@ public class GameManager : MonoBehaviourPun
                 PhotonView sheepView = hit.collider.GetComponent<PhotonView>();
                 if (sheepView != null)
                 {
-                    photonView.RPC("DestroySheepRPC", RpcTarget.AllBuffered, sheepView.ViewID);
+                    // MasterClientに削除を依頼（誰でも呼べる）
+                    photonView.RPC("RequestMasterDestroy", RpcTarget.MasterClient, sheepView.ViewID);
                 }
             }
         }
     }
 
     [PunRPC]
-    public void DestroySheepRPC(int viewID)
+    public void RequestMasterDestroy(int viewID)
     {
-        PhotonView target = PhotonView.Find(viewID);
-        if (target != null)
+        if (PhotonNetwork.IsMasterClient)
         {
-            PhotonNetwork.Destroy(target);
+            PhotonView target = PhotonView.Find(viewID);
+            if (target != null)
+            {
+                PhotonNetwork.Destroy(target);
+            }
         }
     }
 }
+
 
 
