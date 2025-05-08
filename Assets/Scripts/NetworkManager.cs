@@ -24,7 +24,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         // ランダム参加失敗→新しいルーム作成
         RoomOptions options = new RoomOptions();
-        options.MaxPlayers = 4;
+        options.MaxPlayers = 15;
         PhotonNetwork.CreateRoom(null, options);
     }
 

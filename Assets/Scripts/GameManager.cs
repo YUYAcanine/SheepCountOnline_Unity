@@ -1,8 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
-using Photon.Realtime;
 
-public class GameManager : MonoBehaviourPunCallbacks
+public class GameManager : MonoBehaviourPun
 {
     public GameObject sheepPrefab;
 
@@ -10,23 +9,17 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         if (Input.GetMouseButtonDown(0))
         {
-            string role = PhotonNetwork.LocalPlayer.CustomProperties["role"] as string;
-
-            if (role == "generate sheep")
-            {
+            if (PhotonNetwork.LocalPlayer.CustomProperties["role"] as string == "generate sheep")
                 TryGenerateSheep();
-            }
-            else if (role == "count sheep")
-            {
+            else if (PhotonNetwork.LocalPlayer.CustomProperties["role"] as string == "count sheep")
                 TryRemoveSheep();
-            }
         }
     }
 
     void TryGenerateSheep()
     {
-        Vector3 spawnPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
-        PhotonNetwork.Instantiate(sheepPrefab.name, spawnPosition, Quaternion.identity);
+        Vector3 spawnPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
+        PhotonNetwork.Instantiate(sheepPrefab.name, spawnPos, Quaternion.identity);
     }
 
     void TryRemoveSheep()
@@ -37,13 +30,24 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (hit.collider.CompareTag("Sheep"))
             {
-                PhotonView sheepPhotonView = hit.collider.GetComponent<PhotonView>();
-                if (sheepPhotonView != null && sheepPhotonView.IsMine)
+                PhotonView sheepView = hit.collider.GetComponent<PhotonView>();
+                if (sheepView != null)
                 {
-                    PhotonNetwork.Destroy(sheepPhotonView.gameObject);
+                    photonView.RPC("DestroySheepRPC", RpcTarget.AllBuffered, sheepView.ViewID);
                 }
             }
         }
     }
+
+    [PunRPC]
+    public void DestroySheepRPC(int viewID)
+    {
+        PhotonView target = PhotonView.Find(viewID);
+        if (target != null)
+        {
+            PhotonNetwork.Destroy(target);
+        }
+    }
 }
+
 
