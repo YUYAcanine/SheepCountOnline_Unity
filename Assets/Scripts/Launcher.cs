@@ -38,6 +38,12 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = 4 });
     }
 
+    public void ReceivePlayerName(string name)
+    {
+        PhotonNetwork.NickName = name;
+        PhotonNetwork.ConnectUsingSettings();
+    }
+
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined room. Loading GameScene.");

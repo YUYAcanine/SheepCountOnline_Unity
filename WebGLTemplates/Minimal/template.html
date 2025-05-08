@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SheepCountGame</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #222;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #unityContainer {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    #nativeInput, #nativeStart {
+      position: absolute;
+      z-index: 1000;
+      font-size: 18px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    #nativeInput {
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+    }
+
+    #nativeStart {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+<body>
+  <div id="unityContainer"></div>
+
+  <!-- ネイティブ input -->
+  <input id="nativeInput" type="text" placeholder="Enter your name" />
+  <button id="nativeStart" onclick="sendNameToUnity()">Start</button>
+
+  <script>
+    var unityInstance = null;
+
+    function sendNameToUnity() {
+      const name = document.getElementById('nativeInput').value || "Player" + Math.floor(Math.random() * 1000);
+      if (unityInstance) {
+        unityInstance.SendMessage("LauncherObject", "ReceivePlayerName", name);
+      }
+
+      // UIを非表示
+      document.getElementById('nativeInput').style.display = "none";
+      document.getElementById('nativeStart').style.display = "none";
+    }
+  </script>
+
+  <script src="Build/webgl_build.loader.js"></script>
+  <script>
+    createUnityInstance(document.querySelector("#unityContainer"), {
+      dataUrl: "Build/webgl_build.data",
+      frameworkUrl: "Build/webgl_build.framework.js",
+      codeUrl: "Build/webgl_build.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "SheepCountOnlineProject",
+      productVersion: "1.0"
+    }).then((instance) => {
+      unityInstance = instance;
+    });
+  </script>
+</body>
+</html>
